@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,11 +41,17 @@ public class UserController {
 		return service.addUser(userInfo); 
 	} 
 
-	@GetMapping("/user/userProfile") 
+	@GetMapping("/user/userProfile")
 	@PreAuthorize("hasAuthority('ROLE_USER')") 
-	public String userProfile() { 
-		return "Welcome to User Profile"; 
-	} 
+    public String userProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Extract user details from the authentication object
+        String username = authentication.getName();
+        // Add code to fetch user information using the username
+
+        return "Welcome to User Profile, " + username;
+    }
 
 	@GetMapping("/admin/adminProfile") 
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')") 

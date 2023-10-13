@@ -6,12 +6,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor; 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter; 
 
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+//@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
+//@Getter
+//@Setter
 public class UserInfo { 
 
 	@Id
@@ -32,7 +36,7 @@ public class UserInfo {
 		this.password = password;
 		this.roles = roles;
 	}
-	
+
 	public int getId() {
 		return id;
 	}

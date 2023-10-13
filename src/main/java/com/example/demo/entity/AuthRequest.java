@@ -1,12 +1,16 @@
 package com.example.demo.entity;
 
 import lombok.AllArgsConstructor; 
-import lombok.Data; 
-import lombok.NoArgsConstructor; 
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter; 
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+//@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
+//@Getter
+//@Setter
 public class AuthRequest { 
 
 	private String username; 
@@ -14,7 +18,7 @@ public class AuthRequest {
 	
 	public AuthRequest() {
 	}
-	
+
 	public AuthRequest(String username, String password) {
 		this.username = username;
 		this.password = password;
