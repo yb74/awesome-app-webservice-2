@@ -1,12 +1,12 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.AuthRequest;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.service.JwtServiceImplementation;
-import com.example.demo.service.UserInfoService; 
+import com.example.demo.service.UserInfoService;
+
+import jakarta.servlet.http.HttpServletRequest; 
 
 @RestController
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/auth") 
 public class UserController { 
 
@@ -41,18 +44,37 @@ public class UserController {
 		return service.addUser(userInfo); 
 	} 
 
+//	@GetMapping("/user/userProfile")
+//	@PreAuthorize("hasAuthority('ROLE_USER')") 
+//    public String userProfile() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        // Extract user details from the authentication object
+//        String username = authentication.getName();
+//        // Add code to fetch user information using the username
+//
+//        return "Welcome to User Profile, " + username;
+//    }
+	
 	@GetMapping("/user/userProfile")
 	@PreAuthorize("hasAuthority('ROLE_USER')") 
-    public String userProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	public String userProfile(HttpServletRequest request) {
+        // Get the Authorization header from the request
+        String authorizationHeader = request.getHeader("Authorization");
 
-        // Extract user details from the authentication object
-        String username = authentication.getName();
-        // Add code to fetch user information using the username
+        // Check if the Authorization header is not null and starts with "Bearer "
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            // Extract the token (without the "Bearer " prefix)
+            String token = authorizationHeader.substring(7);
 
-        return "Welcome to User Profile, " + username;
+            // Use the token as needed
+            return "Bearer token: " + token;
+        } else {
+            // Handle the case when the header is missing or doesn't have the expected format
+            return "Bearer token not found in the request header.";
+        }
     }
-
+	
 	@GetMapping("/admin/adminProfile") 
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')") 
 	public String adminProfile() { 
