@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.AuthRequest;
@@ -37,6 +38,25 @@ public class UserController {
 	@GetMapping("/welcome") 
 	public String welcome() { 
 		return "Welcome this endpoint is not secure"; 
+	} 
+	
+	@GetMapping("/userdetails") 
+	@PreAuthorize("hasAuthority('ROLE_USER')")
+	public UserInfo findUserByUsername(HttpServletRequest request, @RequestParam String name) {
+		// Get the Authorization header from the request
+        String authorizationHeader = request.getHeader("Authorization");
+
+        // Check if the Authorization header is not null and starts with "Bearer "
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            // Extract the token (without the "Bearer " prefix)
+            String token = authorizationHeader.substring(7);
+
+            // Use the token as needed
+            return service.findUserByUsername(name);
+        } else {
+            // Handle the case when the header is missing or doesn't have the expected format
+            return null;
+        }
 	} 
 
 	@PostMapping("/addNewUser") 
