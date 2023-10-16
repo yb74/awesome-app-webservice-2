@@ -12,8 +12,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.UserCreateDTO;
+import com.example.demo.dto.UserCreateDTOMapper;
+import com.example.demo.dto.UserInfoDTO;
+import com.example.demo.dto.UserInfoMapper;
 import com.example.demo.entity.UserInfo;
-import com.example.demo.filter.JwtAuthFilter;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.UserInfoRepository; 
 
@@ -29,7 +32,13 @@ public class UserInfoService implements UserDetailsService {
 	private PasswordEncoder encoder; 
 	
 	@Autowired
-	private UserMapper userMapper;
+	private UserMapper userMapper; // maybatis mapper (to make sql request)
+	
+	@Autowired
+	private UserInfoMapper userInfoMapper; // mapper to convert entity to DTO and vice-versa
+	
+	@Autowired
+	private UserCreateDTOMapper userCreateDTOMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
@@ -41,28 +50,46 @@ public class UserInfoService implements UserDetailsService {
 				.orElseThrow(() -> new UsernameNotFoundException("User not found " + username)); 
 	} 
 	
-	public UserInfo findUserByUsername(String name) {
+	public UserInfoDTO findUserByUsername(String name) {
 	    try {
 	        if (name != null && !name.isBlank()) {
 	            Optional<UserInfo> foundUser = userMapper.findByName(name);
-	            return foundUser.orElseThrow(() -> new UsernameNotFoundException("User not found " + name));
+	            
+	            UserInfo userInfo = foundUser.orElseThrow(() -> new UsernameNotFoundException("User not found " + name));
+
+	            // Use UserInfoMapper to convert UserInfo to UserInfoDTO
+	            UserInfoDTO userInfoDTO = userInfoMapper.toDto(userInfo);
+
+	            return userInfoDTO;
 	        } else {
 	            throw new IllegalArgumentException("Invalid username");
 	        }
 	    } catch (UsernameNotFoundException e) {
-	    	LOG.error("User not found: {}", e.getMessage(), e);
-	        e.printStackTrace(); // Example: Print the exception to the console
-	        return null; // Return a default value or handle it in another way
+	        LOG.error("User not found: {}", e.getMessage(), e);
+	        e.printStackTrace();
+	        return null;
 	    }
 	}
-
-
-	public String addUser(UserInfo userInfo) { 
-		userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-		userInfo.setRoles("ROLE_USER");
-		repository.save(userInfo); 
-		return "User Added Successfully"; 
-	} 
+	
+//	public String addUser(UserCreateDTO userCreateDTO) {
+//	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
+//		System.out.println("Password from UserCreateDTO: " + userCreateDTO.getPassword());
+//	    UserInfo userInfo = userCreateDTOMapper.toUser(userCreateDTO);
+//	    System.out.println("Password from userInfo: " + userInfo.getEmail());
+//	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
+//	    userInfo.setRoles("ROLE_USER");
+//	    userMapper.insert(userInfo);
+//
+//	    return "User Added Successfully";
+//	}
+	
+	public String addUser(UserInfo userInfo) {
+	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
+	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
+	    userInfo.setRoles("ROLE_USER");
+	    userMapper.insert(userInfo);
+	    return "User Added Successfully";
+	}
 
 
 } 

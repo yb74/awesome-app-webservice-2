@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.UserCreateDTO;
+import com.example.demo.dto.UserInfoDTO;
 import com.example.demo.entity.AuthRequest;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.service.JwtServiceImplementation;
@@ -40,41 +43,30 @@ public class UserController {
 		return "Welcome this endpoint is not secure"; 
 	} 
 	
-	@GetMapping("/userdetails") 
+	@GetMapping("/userdetails")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
-	public UserInfo findUserByUsername(HttpServletRequest request, @RequestParam String name) {
-		// Get the Authorization header from the request
-        String authorizationHeader = request.getHeader("Authorization");
+	public UserInfoDTO findByUsername(HttpServletRequest request) {
+		String authorizationHeader = request.getHeader("Authorization");
+		if (authorizationHeader != null & authorizationHeader.startsWith("Bearer ")) {
+			String token = authorizationHeader.substring(7);
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        String username = authentication.getName();
 
-        // Check if the Authorization header is not null and starts with "Bearer "
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            // Extract the token (without the "Bearer " prefix)
-            String token = authorizationHeader.substring(7);
+			return service.findUserByUsername(username);
+		} else {
+			return null;
+		}
+	}
 
-            // Use the token as needed
-            return service.findUserByUsername(name);
-        } else {
-            // Handle the case when the header is missing or doesn't have the expected format
-            return null;
-        }
-	} 
-
+//	@PostMapping("/addNewUser") 
+//	public String addNewUser(@RequestBody UserCreateDTO userInfo) { 
+//		return service.addUser(userInfo); 
+//	} 
+	
 	@PostMapping("/addNewUser") 
 	public String addNewUser(@RequestBody UserInfo userInfo) { 
 		return service.addUser(userInfo); 
 	} 
-
-//	@GetMapping("/user/userProfile")
-//	@PreAuthorize("hasAuthority('ROLE_USER')") 
-//    public String userProfile() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        // Extract user details from the authentication object
-//        String username = authentication.getName();
-//        // Add code to fetch user information using the username
-//
-//        return "Welcome to User Profile, " + username;
-//    }
 	
 	@GetMapping("/user/userProfile")
 	@PreAuthorize("hasAuthority('ROLE_USER')") 
@@ -101,15 +93,15 @@ public class UserController {
 		return "Welcome to Admin Profile"; 
 	} 
 
+
 	@PostMapping("/generateToken") 
-	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) { 
+	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())); 
 		if (authentication.isAuthenticated()) { 
 			return jwtService.generateToken(authRequest.getUsername()); 
 		} else { 
 			throw new UsernameNotFoundException("invalid user request !"); 
 		} 
-	} 
-
+	}
 } 
 
