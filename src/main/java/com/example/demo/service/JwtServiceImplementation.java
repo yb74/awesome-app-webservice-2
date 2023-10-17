@@ -22,7 +22,6 @@ public class JwtServiceImplementation implements JwtService {
     private String SECRET;
 	
 	public String generateToken(String userName) {
-		System.out.println(userName);
 		Map<String, Object> claims = new HashMap<>(); 
 		return createToken(claims, userName); 
 	} 

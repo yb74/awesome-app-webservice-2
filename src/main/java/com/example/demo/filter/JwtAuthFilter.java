@@ -17,16 +17,11 @@ import com.example.demo.service.UserInfoService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse; 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletResponse;
 
 // This class helps us to validate the generated jwt token 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter { 
-	
-	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthFilter.class);
+public class JwtAuthFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtService jwtService;
@@ -40,8 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		String authHeader = request.getHeader("Authorization"); 
 		String token = null; 
 		String username = null; 
-		
-		LOG.info(request.getHeader("Authorization"));
 		
 		if (authHeader != null && authHeader.startsWith("Bearer ")) { 
 			token = authHeader.substring(7); 
