@@ -30,7 +30,8 @@ public class JwtServiceImplementation implements JwtService {
 				.setClaims(claims) 
 				.setSubject(userName) 
 				.setIssuedAt(new Date(System.currentTimeMillis())) 
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) 
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 20)) // token expires after 30 min
+				// .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact(); 
 	} 
 
