@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dto.UserCreateDTO;
-import com.example.demo.dto.UserCreateDTOMapper;
 import com.example.demo.dto.UserInfoDTO;
 import com.example.demo.dto.UserInfoMapper;
 import com.example.demo.entity.UserInfo;
@@ -36,9 +34,6 @@ public class UserInfoService implements UserDetailsService {
 	
 	@Autowired
 	private UserInfoMapper userInfoMapper; // mapper to convert entity to DTO and vice-versa
-	
-	@Autowired
-	private UserCreateDTOMapper userCreateDTOMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
@@ -70,18 +65,6 @@ public class UserInfoService implements UserDetailsService {
 	        return null;
 	    }
 	}
-	
-//	public String addUser(UserCreateDTO userCreateDTO) {
-//	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
-//		System.out.println("Password from UserCreateDTO: " + userCreateDTO.getPassword());
-//	    UserInfo userInfo = userCreateDTOMapper.toUser(userCreateDTO);
-//	    System.out.println("Password from userInfo: " + userInfo.getEmail());
-//	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-//	    userInfo.setRoles("ROLE_USER");
-//	    userMapper.insert(userInfo);
-//
-//	    return "User Added Successfully";
-//	}
 	
 	public String addUser(UserInfo userInfo) {
 	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
