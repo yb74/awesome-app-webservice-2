@@ -36,22 +36,24 @@ public class SecurityConfig {
 
 	// Configuring HttpSecurity 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception { 
-		return http.csrf().disable() 
-				.authorizeHttpRequests() 
-				.requestMatchers("/auth/welcome", "/auth/addNewUser", "/auth/generateToken", "/auth/userdetails").permitAll() 
-				.and() 
-				.authorizeHttpRequests().requestMatchers("/auth/user/**").authenticated() 
-				.and() 
-				.authorizeHttpRequests().requestMatchers("/auth/admin/**").authenticated() 
-				.and() 
-				.sessionManagement() 
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
-				.and() 
-				.authenticationProvider(authenticationProvider()) 
-				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) 
-				.build(); 
-	} 
+
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+		return http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(ar -> ar.requestMatchers("/auth/addNewUser", "/auth/generateToken", "/auth/userdetails").permitAll())
+
+				.authorizeHttpRequests(ar ->ar.requestMatchers("/auth/user/**").authenticated())
+
+				.authorizeHttpRequests(ar -> ar.requestMatchers("/auth/admin/**").authenticated())
+
+				.sessionManagement()
+
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+
+				.authenticationProvider(authenticationProvider())
+
+				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
+
+	}
 
 	// Password Encoding 
 	@Bean
