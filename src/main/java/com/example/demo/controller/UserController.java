@@ -47,7 +47,7 @@ public class UserController {
 		return "Welcome this endpoint is not secure"; 
 	} 
 	
-	@GetMapping("/userdetails")
+	@GetMapping("/user/userdetails")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public UserInfoDTO findByUsername(HttpServletRequest request) {
 		String authorizationHeader = request.getHeader("Authorization");
