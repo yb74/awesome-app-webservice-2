@@ -17,10 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.JwtResponseDTO;
+import com.example.demo.dto.RefreshTokenRequestDTO;
 import com.example.demo.dto.UserInfoDTO;
 import com.example.demo.entity.AuthRequest;
+import com.example.demo.entity.RefreshToken;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.service.JwtServiceImplementation;
+import com.example.demo.service.RefreshTokenService;
 import com.example.demo.service.UserInfoService;
 
 import org.springframework.security.core.AuthenticationException;
@@ -37,7 +41,10 @@ public class UserController {
 	private UserInfoService service; 
 
 	@Autowired
-	private JwtServiceImplementation jwtService; 
+	private JwtServiceImplementation jwtService;
+	
+	 @Autowired
+	 private RefreshTokenService refreshTokenService;
 
 	@Autowired
 	private AuthenticationManager authenticationManager; 
@@ -50,6 +57,7 @@ public class UserController {
 	@GetMapping("/user/userdetails")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public UserInfoDTO findByUsername(HttpServletRequest request) {
+		System.out.println("user details controller");
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader != null & authorizationHeader.startsWith("Bearer ")) {
 			String token = authorizationHeader.substring(7);
@@ -75,11 +83,15 @@ public class UserController {
 
 
 	@PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    public JwtResponseDTO authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
             if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(authRequest.getUsername());
+            	 RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
+                
+                return JwtResponseDTO.builder()
+                        .accessToken(jwtService.generateToken(authRequest.getUsername()))
+                        .token(refreshToken.getToken()).build();
             } else {
                 // Handle the case where authentication succeeded but the user is not authorized.
                 throw new org.springframework.security.access.AccessDeniedException("Access denied"); // or a custom exception
@@ -88,6 +100,21 @@ public class UserController {
             // Handle the case where authentication failed.
             throw new BadCredentialsException("Invalid credentials"); // or a custom exception
         }
+    }
+	
+    @PostMapping("/refreshToken")
+    public JwtResponseDTO refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequest) {
+        return refreshTokenService.findByToken(refreshTokenRequest.getToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUserInfo)
+                .map(userInfo -> {
+                    String accessToken = jwtService.generateToken(userInfo.getName());
+                    return JwtResponseDTO.builder()
+                            .accessToken(accessToken)
+                            .token(refreshTokenRequest.getToken())
+                            .build();
+                }).orElseThrow(() -> new RuntimeException(
+                        "Refresh token is not in database!"));
     }
 
     @ExceptionHandler({AuthenticationException.class})

@@ -48,6 +48,7 @@ public class UserInfoService implements UserDetailsService {
 	public UserInfoDTO findUserByUsername(String name) {
 	    try {
 	        if (name != null && !name.isBlank()) {
+	        	System.out.println("user details service");
 	            Optional<UserInfo> foundUser = userMapper.findByName(name);
 	            
 	            UserInfo userInfo = foundUser.orElseThrow(() -> new UsernameNotFoundException("User not found " + name));
