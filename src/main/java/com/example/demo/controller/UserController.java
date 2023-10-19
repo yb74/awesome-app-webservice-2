@@ -60,6 +60,7 @@ public class UserController {
 		System.out.println("user details controller");
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader != null & authorizationHeader.startsWith("Bearer ")) {
+			System.out.println(authorizationHeader);
 			String token = authorizationHeader.substring(7);
 	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	        String username = authentication.getName();
