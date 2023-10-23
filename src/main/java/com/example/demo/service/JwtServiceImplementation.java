@@ -21,18 +21,21 @@ public class JwtServiceImplementation implements JwtService {
 	@Value("${jwt.secret}")
     private String SECRET;
 	
+	@Value("${token.expiration.duration}")
+	private int tokenExpirationDuration;
+	
 	public String generateToken(String userName) {
 		Map<String, Object> claims = new HashMap<>(); 
 		return createToken(claims, userName); 
 	} 
 
-	private String createToken(Map<String, Object> claims, String userName) { 
+	private String createToken(Map<String, Object> claims, String userName) {
 		return Jwts.builder() 
 				.setClaims(claims) 
 				.setSubject(userName) 
 				.setIssuedAt(new Date(System.currentTimeMillis())) 
 //				 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // token expires after 30 min
-				 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 30))
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * tokenExpirationDuration))
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact(); 
 	} 
 

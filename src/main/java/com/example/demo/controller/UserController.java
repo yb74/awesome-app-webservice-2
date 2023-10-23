@@ -1,7 +1,5 @@
 package com.example.demo.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +48,6 @@ public class UserController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager; 
-	
-	private static final Logger LOG = LoggerFactory.getLogger(UserInfoService.class);
 
 	@GetMapping("/welcome") 
 	public String welcome() { 
@@ -61,12 +57,10 @@ public class UserController {
 	@GetMapping("/user/userdetails")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public UserInfoDTO findByUsername(HttpServletRequest request) {
-		LOG.info("user details controller");
+		System.out.println("user details controller");
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader != null & authorizationHeader.startsWith("Bearer ")) {
-			LOG.info("Authozization header = ", authorizationHeader);
 			System.out.println(authorizationHeader);
-			LOG.info(authorizationHeader);
 			String token = authorizationHeader.substring(7);
 	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	        String username = authentication.getName();
@@ -93,7 +87,13 @@ public class UserController {
     public JwtResponseDTO authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+            
             if (authentication.isAuthenticated()) {
+            	// if there is already a refreshToken in db, we delete it
+	           	 int userId = service.findUserByUsername(authRequest.getUsername()).getId();
+	           	 // deleteRefreshTokenById
+	           	 refreshTokenService.deleteTokenByUserId(userId);
+           	 
             	 RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
                 
                 return JwtResponseDTO.builder()
