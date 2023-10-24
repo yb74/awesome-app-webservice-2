@@ -16,7 +16,8 @@ import com.example.demo.dto.UserInfoDTO;
 import com.example.demo.dto.UserInfoMapper;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.mapper.UserMapper;
-import com.example.demo.repository.UserInfoRepository; 
+import com.example.demo.repository.UserInfoRepository;
+import com.example.demo.util.AESUtil; 
 
 @Service
 @Lazy
@@ -68,8 +69,20 @@ public class UserInfoService implements UserDetailsService {
 	}
 	
 	public String addUser(UserInfo userInfo) {
+		final String secretKey = "ssshhhhhhhhhhh!!!!";
+
+		String originalString = "howtodoinjava.com";
+		String encryptedString = AESUtil.encrypt(originalString, secretKey) ;
+		String decryptedString = AESUtil.decrypt(encryptedString, secretKey) ;
+
+		System.out.println(originalString);
+		System.out.println(encryptedString);
+		System.out.println(decryptedString);
+		
+		
 	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
-	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
+	    userInfo.setPassword(userInfo.getPassword());
+//	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
 	    userInfo.setRoles("ROLE_USER");
 	    userMapper.insert(userInfo);
 	    return "User Added Successfully";

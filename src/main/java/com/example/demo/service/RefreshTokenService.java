@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.RefreshToken;
 import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.repository.UserInfoRepository;
-
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
