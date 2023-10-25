@@ -57,7 +57,6 @@ public class UserController {
 	@GetMapping("/user/userdetails")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public UserInfoDTO findByUsername(HttpServletRequest request) {
-		System.out.println("user details controller");
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader != null & authorizationHeader.startsWith("Bearer ")) {
 			System.out.println(authorizationHeader);
