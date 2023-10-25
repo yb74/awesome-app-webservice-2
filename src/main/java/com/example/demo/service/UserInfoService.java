@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,6 +23,9 @@ import com.example.demo.util.AESUtil;
 @Service
 @Lazy
 public class UserInfoService implements UserDetailsService {
+	@Value("${key}")
+    private String AES_KEY;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(UserInfoService.class);
 
 	@Autowired
@@ -69,20 +73,23 @@ public class UserInfoService implements UserDetailsService {
 	}
 	
 	public String addUser(UserInfo userInfo) {
-		final String secretKey = "ssshhhhhhhhhhh!!!!";
+		final String secretKey = this.AES_KEY;
 
-		String originalString = "howtodoinjava.com";
-		String encryptedString = AESUtil.encrypt(originalString, secretKey) ;
-		String decryptedString = AESUtil.decrypt(encryptedString, secretKey) ;
+//		String originalString = "howtodoinjava.com";
+//		String encryptedString = AESUtil.encrypt(originalString, secretKey);
+//		String decryptedString = AESUtil.decrypt(encryptedString, secretKey);
+		
+		String decryptedString = AESUtil.decrypt(userInfo.getPassword(), secretKey);
+		
 
-		System.out.println(originalString);
-		System.out.println(encryptedString);
-		System.out.println(decryptedString);
+//		System.out.println(originalString);
+//		System.out.println(encryptedString);
+		LOG.info(secretKey);
+		LOG.info(decryptedString);
 		
 		
 	    // Use the instance of UserCreateDTOMapper to convert UserCreateDTO to UserInfo
-	    userInfo.setPassword(userInfo.getPassword());
-//	    userInfo.setPassword(encoder.encode(userInfo.getPassword()));
+	    userInfo.setPassword(encoder.encode(decryptedString));
 	    userInfo.setRoles("ROLE_USER");
 	    userMapper.insert(userInfo);
 	    return "User Added Successfully";
